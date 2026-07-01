@@ -46,10 +46,13 @@ All state and rendering logic is in the inline `<script>` (an IIFE) at the botto
   three digits each) or `#world`. `applyHash`/`updateHash` guard against feedback loops
   with the `applyingHash` flag; state changes use `history.replaceState` so navigation
   doesn't pollute browser history.
-- **`LANDMARKS`** holds city/region jump targets. These coordinates were extracted from
-  `region` lines in the crossfire-maps source (the first non-`world` region in each
-  `world/world_<x>_<y>` map file) — do not guess new entries; derive them from the map
-  sources the same way.
+- **`LANDMARKS`** holds city/region jump targets, extracted from `region` lines in the
+  crossfire-maps source (the first non-`world` region in each `world/world_<x>_<y>` map
+  file). Do not guess new entries — regenerate the array with
+  `tools/extract-landmarks.sh /path/to/crossfire-maps` (local checkout:
+  `/Users/leaf/Documents/cf-devel/crossfire-crossfire-maps`). The script emits official
+  `longname` values from `regions.reg`; the names currently embedded in the page were
+  hand-shortened for the dropdown (e.g. 'Scorn' instead of 'The Kingdom of Scorn').
 - **Minimap** is a second 30×30 grid reusing the same `.x5.png` files (browser-cached from
   the overview) with a percent-positioned viewport rectangle overlay.
 - The center-tile detail link points to the Atlas per-tile page `world_<x>_<y>.html`,

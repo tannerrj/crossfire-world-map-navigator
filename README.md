@@ -53,6 +53,20 @@ world_<x>_<y>.html                  per-tile detail page (optional; used by the
 The page is fully standalone — no external libraries, no build step, and no server-side
 code. Any static web server will do.
 
+## Regenerating landmark data
+
+The landmark dropdown data is derived from the map sources, not hand-maintained. When the
+world maps change, regenerate the array from a
+[crossfire-maps](https://sourceforge.net/p/crossfire/crossfire-maps/) checkout and paste
+it over the `LANDMARKS` definition in `map-navigator.html`:
+
+```sh
+tools/extract-landmarks.sh /path/to/crossfire-maps
+```
+
+For each named region the script picks the region tile closest to the region's centroid
+and takes its display name from the `longname` entries in `regions.reg`.
+
 ## Local testing
 
 ```sh
