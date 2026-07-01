@@ -27,6 +27,10 @@ Opening the file directly from this repo shows broken images (no tiles here). Af
 `map-navigator.html` in this repo, copy it into the world/ directory to test, and keep the
 two copies in sync.
 
+Without the real renders, `tools/generate-placeholder-tiles.py <dir> --detail-pages`
+(stdlib-only, ~20s) generates coordinate-labeled placeholder tiles at all four sizes the
+page uses, plus stub detail pages; copy `map-navigator.html` into that directory and serve it.
+
 ## Architecture
 
 All state and rendering logic is in the inline `<script>` (an IIFE) at the bottom of

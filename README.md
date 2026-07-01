@@ -75,6 +75,21 @@ python3 -m http.server 8899
 # then open http://localhost:8899/map-navigator.html
 ```
 
+### Developing without the real tiles
+
+If you don't have the Atlas renders, generate placeholder tiles (each shows its
+coordinates on a position-tinted background, with an ocean ring at the map border):
+
+```sh
+tools/generate-placeholder-tiles.py /tmp/ptiles --detail-pages
+cp map-navigator.html /tmp/ptiles/
+cd /tmp/ptiles && python3 -m http.server 8899
+```
+
+The generator needs only the Python standard library and takes about 20 seconds for
+all 3,600 images. `--detail-pages` also writes stub `world_<x>_<y>.html` pages so the
+"Open tile detail page" link works; `--force` overwrites existing files.
+
 ## License
 
 The navigator page is a small standalone work; the Crossfire map data and rendered
