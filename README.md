@@ -92,5 +92,7 @@ all 3,600 images. `--detail-pages` also writes stub `world_<x>_<y>.html` pages s
 
 ## License
 
-The navigator page is a small standalone work; the Crossfire map data and rendered
-images it displays belong to the Crossfire project and carry their own licensing.
+This project is licensed under the GNU General Public License, version 2 (see
+[LICENSE](LICENSE)), matching the licensing of the Crossfire project. The Crossfire
+map data and rendered images the page displays belong to the Crossfire project and
+carry their own licensing.
