@@ -1,0 +1,6 @@
+# Map tile images are produced by the Crossfire Atlas pipeline and are not
+# part of this repository.
+*.png
+
+# macOS
+.DS_Store

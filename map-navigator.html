@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crossfire World Map Navigator</title>
+<link rel="SHORTCUT ICON" href="https://www.crossfireatlas.net/favicon.ico">
+<style>
+  :root {
+    --bg: #1a1611;
+    --panel: #262019;
+    --panel-edge: #3d3428;
+    --ink: #e8dcc4;
+    --ink-dim: #a8987c;
+    --gold: #d4a843;
+    --gold-dim: #8a6f2f;
+    --accent: #c8442c;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: Georgia, 'Times New Roman', serif;
+    min-height: 100vh;
+  }
+  header {
+    padding: 14px 20px 10px;
+    border-bottom: 2px solid var(--panel-edge);
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  header h1 {
+    margin: 0;
+    font-size: 1.5em;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  header .sub { color: var(--ink-dim); font-size: 0.9em; }
+  header a { color: var(--gold); }
+  main {
+    display: flex;
+    gap: 20px;
+    padding: 16px 20px 30px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  /* ---- map area ---- */
+  #mapArea { flex: 1 1 600px; min-width: 320px; }
+  #statusBar {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+    min-height: 30px;
+    font-size: 0.95em;
+  }
+  #statusBar .crumb { color: var(--ink-dim); }
+  #statusBar .crumb b { color: var(--ink); font-weight: normal; }
+  #statusBar a { color: var(--gold); }
+  #viewWrap {
+    position: relative;
+    width: 100%;
+    max-width: 860px;
+  }
+  .tileGrid {
+    display: grid;
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #000;
+    border: 3px solid var(--panel-edge);
+    border-radius: 4px;
+    overflow: hidden;
+    user-select: none;
+  }
+  .tileGrid .cell {
+    position: relative;
+    cursor: zoom-in;
+  }
+  .tileGrid .cell img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .tileGrid .cell:hover { outline: 2px solid var(--gold); outline-offset: -2px; z-index: 2; }
+  .tileGrid .cell .lbl {
+    position: absolute;
+    left: 3px;
+    bottom: 2px;
+    font-size: 11px;
+    font-family: monospace;
+    color: #fff;
+    background: rgba(0,0,0,0.6);
+    padding: 0 4px;
+    border-radius: 2px;
+    pointer-events: none;
+    display: none;
+  }
+  #viewWrap.showLabels .cell .lbl { display: block; }
+  .centerMark {
+    outline: 2px dashed rgba(212,168,67,0.8);
+    outline-offset: -5px;
+  }
+  #hint { color: var(--ink-dim); font-size: 0.85em; margin-top: 8px; }
+  /* ---- sidebar ---- */
+  #sidebar {
+    flex: 0 0 250px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--panel-edge);
+    border-radius: 6px;
+    padding: 12px 14px;
+  }
+  .panel h2 {
+    margin: 0 0 10px;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--gold);
+    border-bottom: 1px solid var(--panel-edge);
+    padding-bottom: 6px;
+  }
+  /* compass */
+  #compass {
+    display: grid;
+    grid-template-columns: repeat(3, 54px);
+    grid-template-rows: repeat(3, 54px);
+    gap: 5px;
+    justify-content: center;
+  }
+  #compass button {
+    font-size: 22px;
+    background: #332b1f;
+    color: var(--ink);
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  #compass button:hover:not(:disabled) { background: #4a3d2a; border-color: var(--gold); }
+  #compass button:disabled {
+    opacity: 0.25;
+    cursor: not-allowed;
+    border-color: var(--panel-edge);
+  }
+  #compass #btnZoomIn { font-size: 24px; color: var(--gold); }
+  .btnRow { display: flex; gap: 8px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+  .btnRow button, #jumpGo, #btnRandom {
+    background: #332b1f;
+    color: var(--ink);
+    border: 1px solid var(--gold-dim);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: inherit;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+  .btnRow button:hover:not(:disabled), #jumpGo:hover, #btnRandom:hover { background: #4a3d2a; border-color: var(--gold); }
+  .btnRow button:disabled { opacity: 0.25; cursor: not-allowed; }
+  #zoomLevelName { text-align: center; color: var(--ink-dim); font-size: 0.85em; margin-top: 8px; }
+  /* minimap */
+  #minimap {
+    position: relative;
+    width: 210px;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(30, 1fr);
+    border: 1px solid var(--gold-dim);
+    cursor: crosshair;
+    background: #000;
+  }
+  #minimap img { display: block; width: 100%; height: 100%; pointer-events: none; }
+  #minimapRect {
+    position: absolute;
+    border: 2px solid var(--accent);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.7);
+    pointer-events: none;
+    display: none;
+  }
+  /* search / jump */
+  select, input[type=number] {
+    background: #14100b;
+    color: var(--ink);
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    padding: 5px 6px;
+    font-family: inherit;
+    font-size: 0.9em;
+  }
+  select { width: 100%; }
+  .jumpRow { display: flex; gap: 6px; margin-top: 10px; align-items: center; }
+  .jumpRow input { width: 64px; }
+  .jumpRow label { color: var(--ink-dim); font-size: 0.85em; }
+  .optRow { margin-top: 10px; font-size: 0.9em; color: var(--ink-dim); }
+  kbd {
+    background: #14100b;
+    border: 1px solid var(--panel-edge);
+    border-radius: 3px;
+    padding: 0 5px;
+    font-size: 0.85em;
+    font-family: monospace;
+  }
+  #helpPanel ul { margin: 0; padding-left: 4px; list-style: none; font-size: 0.85em; color: var(--ink-dim); }
+  #helpPanel li { margin-bottom: 5px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Crossfire World Map Navigator</h1>
+  <span class="sub">30 &times; 30 tiles &middot; world_100_100 to world_129_129 &middot; <a href="../index.html">Crossfire Atlas home</a></span>
+</header>
+
+<main>
+  <div id="mapArea">
+    <div id="statusBar">
+      <span class="crumb" id="crumb"></span>
+      <a id="detailLink" href="#" target="_blank" style="display:none">Open tile detail page &#8599;</a>
+    </div>
+    <div id="viewWrap">
+      <div id="grid" class="tileGrid"></div>
+    </div>
+    <div id="hint"></div>
+  </div>
+
+  <div id="sidebar">
+    <div class="panel" id="navPanel">
+      <h2>Navigate</h2>
+      <div id="compass">
+        <button id="btnNW" title="Move northwest">&#8598;</button>
+        <button id="btnN"  title="Move north">&#8593;</button>
+        <button id="btnNE" title="Move northeast">&#8599;</button>
+        <button id="btnW"  title="Move west">&#8592;</button>
+        <button id="btnZoomIn" title="Zoom in on center">&#8853;</button>
+        <button id="btnE"  title="Move east">&#8594;</button>
+        <button id="btnSW" title="Move southwest">&#8601;</button>
+        <button id="btnS"  title="Move south">&#8595;</button>
+        <button id="btnSE" title="Move southeast">&#8600;</button>
+      </div>
+      <div class="btnRow">
+        <button id="btnZoomOut" title="Zoom out">&#8854; Zoom out</button>
+        <button id="btnOverview" title="Return to full world view">&#127758; World view</button>
+      </div>
+      <div id="zoomLevelName"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Minimap</h2>
+      <div id="minimap" title="Click to jump">
+        <div id="minimapRect"></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2>Find a place</h2>
+      <select id="landmarkSel">
+        <option value="">&mdash; Landmarks &amp; regions &mdash;</option>
+      </select>
+      <div class="jumpRow">
+        <label>Tile</label>
+        <input type="number" id="jumpX" min="100" max="129" placeholder="x">
+        <input type="number" id="jumpY" min="100" max="129" placeholder="y">
+        <button id="jumpGo">Go</button>
+      </div>
+      <div class="btnRow" style="justify-content:flex-start">
+        <button id="btnRandom" title="Jump to a random tile">&#127922; Random tile</button>
+      </div>
+      <div class="optRow">
+        <label><input type="checkbox" id="chkLabels"> Show tile coordinates</label>
+      </div>
+    </div>
+
+    <div class="panel" id="helpPanel">
+      <h2>Tips</h2>
+      <ul>
+        <li><kbd>&#8592;</kbd><kbd>&#8593;</kbd><kbd>&#8595;</kbd><kbd>&#8594;</kbd> move one tile (<kbd>Shift</kbd> = full page)</li>
+        <li><kbd>+</kbd> / <kbd>&minus;</kbd> zoom in / out</li>
+        <li><kbd>Esc</kbd> return to world view</li>
+        <li>Click a tile to center &amp; zoom on it</li>
+        <li>The page URL tracks your position &mdash; copy it to share a view</li>
+      </ul>
+    </div>
+  </div>
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  var MIN = 100, MAX = 129, SIZE = 30;
+  // Zoom levels: how many tiles across, and which pre-rendered image size to use.
+  var ZOOMS = {
+    1: { n: 5, sfx: '.x4.png', name: 'Regional view (5×5 tiles)' },
+    2: { n: 3, sfx: '.x3.png', name: 'Local view (3×3 tiles)' },
+    3: { n: 1, sfx: '.x1.png', name: 'Single map (full detail)' }
+  };
+  var MAXZ = 3;
+
+  // Landmarks extracted from the region designations in the map source files.
+  var LANDMARKS = [
+    { name: 'Andustar',        x: 104, y: 114 },
+    { name: 'Azumauindo',      x: 128, y: 101 },
+    { name: 'Brest',           x: 107, y: 123 },
+    { name: 'Darcap',          x: 116, y: 103 },
+    { name: 'Euthville',       x: 105, y: 113 },
+    { name: 'Fire Volcano',    x: 115, y: 115 },
+    { name: 'Lake Country',    x: 109, y: 126 },
+    { name: 'Marksel',         x: 120, y: 109 },
+    { name: 'Narcopin',        x: 119, y: 116 },
+    { name: 'Navar',           x: 122, y: 116 },
+    { name: 'Port Joseph',     x: 100, y: 115 },
+    { name: 'Santo Dominion',  x: 102, y: 108 },
+    { name: 'Scorn',           x: 105, y: 115 },
+    { name: 'Stoneville',      x: 102, y: 127 },
+    { name: 'Three Sisters',   x: 115, y: 110 },
+    { name: 'Whaling Outpost', x: 123, y: 123 },
+    { name: 'Wilderness',      x: 113, y: 122 },
+    { name: 'Wolfsburg',       x: 128, y: 108 }
+  ];
+
+  // state: { mode:'overview' }  or  { mode:'zoom', wx, wy, z }
+  // (wx, wy) is the top-left tile of the visible window.
+  var state = { mode: 'overview' };
+
+  var grid = document.getElementById('grid');
+  var viewWrap = document.getElementById('viewWrap');
+  var crumb = document.getElementById('crumb');
+  var detailLink = document.getElementById('detailLink');
+  var hint = document.getElementById('hint');
+  var zoomLevelName = document.getElementById('zoomLevelName');
+  var minimap = document.getElementById('minimap');
+  var minimapRect = document.getElementById('minimapRect');
+
+  function tileName(x, y) { return 'world_' + x + '_' + y; }
+  function clampW(v, n) { return Math.min(MAX - n + 1, Math.max(MIN, v)); }
+  function centerOf(s) {
+    var n = ZOOMS[s.z].n, h = Math.floor(n / 2);
+    return { x: s.wx + h, y: s.wy + h };
+  }
+
+  /* ---------- rendering ---------- */
+
+  function buildOverview() {
+    grid.style.gridTemplateColumns = 'repeat(' + SIZE + ', 1fr)';
+    grid.innerHTML = '';
+    for (var y = MIN; y <= MAX; y++) {
+      for (var x = MIN; x <= MAX; x++) {
+        grid.appendChild(makeCell(x, y, '.x5.png', true));
+      }
+    }
+  }
+
+  function makeCell(x, y, sfx, lazy) {
+    var cell = document.createElement('div');
+    cell.className = 'cell';
+    cell.dataset.x = x;
+    cell.dataset.y = y;
+    var img = document.createElement('img');
+    img.src = tileName(x, y) + sfx;
+    img.alt = tileName(x, y);
+    img.draggable = false;
+    if (lazy) img.loading = 'lazy';
+    cell.title = tileName(x, y);
+    var lbl = document.createElement('span');
+    lbl.className = 'lbl';
+    lbl.textContent = x + ',' + y;
+    cell.appendChild(img);
+    cell.appendChild(lbl);
+    return cell;
+  }
+
+  function render() {
+    if (state.mode === 'overview') {
+      buildOverview();
+      crumb.innerHTML = '<b>World view</b> — click any tile to zoom in';
+      detailLink.style.display = 'none';
+      hint.textContent = 'Showing all 900 world maps. Hover a tile for its name.';
+      zoomLevelName.textContent = 'World view (30×30 tiles)';
+      minimapRect.style.display = 'none';
+      setNavEnabled(false);
+    } else {
+      var zi = ZOOMS[state.z], n = zi.n;
+      grid.style.gridTemplateColumns = 'repeat(' + n + ', 1fr)';
+      grid.innerHTML = '';
+      var c = centerOf(state);
+      for (var y = state.wy; y < state.wy + n; y++) {
+        for (var x = state.wx; x < state.wx + n; x++) {
+          var cell = makeCell(x, y, zi.sfx, false);
+          if (n > 1 && x === c.x && y === c.y) cell.classList.add('centerMark');
+          grid.appendChild(cell);
+        }
+      }
+      crumb.innerHTML = 'Center tile: <b>' + tileName(c.x, c.y) + '</b>';
+      detailLink.href = tileName(c.x, c.y) + '.html';
+      detailLink.style.display = '';
+      hint.textContent = n > 1
+        ? 'Click a tile to center and zoom in on it. The dashed square marks the current center.'
+        : 'You are viewing a single map at full detail.';
+      zoomLevelName.textContent = zi.name;
+      updateMinimapRect(n);
+      setNavEnabled(true);
+    }
+    updateHash();
+  }
+
+  function setNavEnabled(zoomed) {
+    var dirs = { NW: [-1,-1], N: [0,-1], NE: [1,-1], W: [-1,0], E: [1,0], SW: [-1,1], S: [0,1], SE: [1,1] };
+    for (var k in dirs) {
+      var btn = document.getElementById('btn' + k);
+      btn.disabled = !zoomed || !canMove(dirs[k][0], dirs[k][1]);
+    }
+    document.getElementById('btnZoomIn').disabled = !zoomed || state.z >= MAXZ;
+    document.getElementById('btnZoomOut').disabled = !zoomed;
+    document.getElementById('btnOverview').disabled = !zoomed;
+  }
+
+  function canMove(dx, dy) {
+    if (state.mode !== 'zoom') return false;
+    var n = ZOOMS[state.z].n;
+    if (dx < 0 && state.wx <= MIN) return false;
+    if (dx > 0 && state.wx >= MAX - n + 1) return false;
+    if (dy < 0 && state.wy <= MIN) return false;
+    if (dy > 0 && state.wy >= MAX - n + 1) return false;
+    return true;
+  }
+
+  function updateMinimapRect(n) {
+    var pct = 100 / SIZE;
+    minimapRect.style.display = 'block';
+    minimapRect.style.left = ((state.wx - MIN) * pct) + '%';
+    minimapRect.style.top = ((state.wy - MIN) * pct) + '%';
+    minimapRect.style.width = (n * pct) + '%';
+    minimapRect.style.height = (n * pct) + '%';
+  }
+
+  /* ---------- state changes ---------- */
+
+  function gotoTile(cx, cy, z) {
+    cx = Math.min(MAX, Math.max(MIN, Math.round(cx)));
+    cy = Math.min(MAX, Math.max(MIN, Math.round(cy)));
+    z = Math.min(MAXZ, Math.max(1, z));
+    var n = ZOOMS[z].n, h = Math.floor(n / 2);
+    state = { mode: 'zoom', wx: clampW(cx - h, n), wy: clampW(cy - h, n), z: z };
+    render();
+  }
+
+  function showOverview() {
+    state = { mode: 'overview' };
+    render();
+  }
+
+  function move(dx, dy, page) {
+    if (state.mode !== 'zoom' || !canMove(dx, dy)) return;
+    var n = ZOOMS[state.z].n;
+    var step = page ? n : 1;
+    state.wx = clampW(state.wx + dx * step, n);
+    state.wy = clampW(state.wy + dy * step, n);
+    render();
+  }
+
+  function zoomIn() {
+    if (state.mode !== 'zoom' || state.z >= MAXZ) return;
+    var c = centerOf(state);
+    gotoTile(c.x, c.y, state.z + 1);
+  }
+
+  function zoomOut() {
+    if (state.mode !== 'zoom') return;
+    if (state.z <= 1) { showOverview(); return; }
+    var c = centerOf(state);
+    gotoTile(c.x, c.y, state.z - 1);
+  }
+
+  /* ---------- URL hash (shareable views) ---------- */
+
+  var applyingHash = false;
+  function updateHash() {
+    if (applyingHash) return;
+    var h = state.mode === 'overview'
+      ? '#world'
+      : '#' + centerOf(state).x + ',' + centerOf(state).y + ',' + state.z;
+    if (location.hash !== h) history.replaceState(null, '', h);
+  }
+
+  function applyHash() {
+    var m = /^#(\d{3}),(\d{3}),([1-3])$/.exec(location.hash);
+    applyingHash = true;
+    if (m) gotoTile(+m[1], +m[2], +m[3]);
+    else showOverview();
+    applyingHash = false;
+    updateHash();
+  }
+
+  /* ---------- wiring ---------- */
+
+  // Main grid clicks: overview -> zoom 1 on tile; zoomed -> center & zoom in on tile.
+  grid.addEventListener('click', function (e) {
+    var cell = e.target.closest('.cell');
+    if (!cell) return;
+    var x = +cell.dataset.x, y = +cell.dataset.y;
+    if (state.mode === 'overview') {
+      gotoTile(x, y, 1);
+    } else if (ZOOMS[state.z].n > 1) {
+      gotoTile(x, y, state.z + 1 <= MAXZ ? state.z + 1 : state.z);
+    } else {
+      zoomIn();
+    }
+  });
+
+  // Compass
+  var DIRS = { NW: [-1,-1], N: [0,-1], NE: [1,-1], W: [-1,0], E: [1,0], SW: [-1,1], S: [0,1], SE: [1,1] };
+  Object.keys(DIRS).forEach(function (k) {
+    document.getElementById('btn' + k).addEventListener('click', function (e) {
+      move(DIRS[k][0], DIRS[k][1], e.shiftKey);
+    });
+  });
+  document.getElementById('btnZoomIn').addEventListener('click', zoomIn);
+  document.getElementById('btnZoomOut').addEventListener('click', zoomOut);
+  document.getElementById('btnOverview').addEventListener('click', showOverview);
+
+  // Minimap: build once, click to jump.
+  (function buildMinimap() {
+    for (var y = MIN; y <= MAX; y++) {
+      for (var x = MIN; x <= MAX; x++) {
+        var img = document.createElement('img');
+        img.src = tileName(x, y) + '.x5.png';
+        img.alt = '';
+        img.loading = 'lazy';
+        minimap.appendChild(img);
+      }
+    }
+    minimap.appendChild(minimapRect); // keep overlay on top
+  })();
+  minimap.addEventListener('click', function (e) {
+    var r = minimap.getBoundingClientRect();
+    var x = MIN + Math.floor((e.clientX - r.left) / r.width * SIZE);
+    var y = MIN + Math.floor((e.clientY - r.top) / r.height * SIZE);
+    gotoTile(x, y, state.mode === 'zoom' ? state.z : 1);
+  });
+
+  // Landmark search
+  var sel = document.getElementById('landmarkSel');
+  LANDMARKS.forEach(function (lm, i) {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = lm.name + '  (' + lm.x + ',' + lm.y + ')';
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', function () {
+    if (sel.value === '') return;
+    var lm = LANDMARKS[+sel.value];
+    gotoTile(lm.x, lm.y, 2);
+    sel.value = '';
+  });
+
+  // Coordinate jump
+  document.getElementById('jumpGo').addEventListener('click', function () {
+    var x = +document.getElementById('jumpX').value;
+    var y = +document.getElementById('jumpY').value;
+    if (x >= MIN && x <= MAX && y >= MIN && y <= MAX) {
+      gotoTile(x, y, state.mode === 'zoom' ? state.z : 1);
+    } else {
+      alert('Coordinates must be between ' + MIN + ' and ' + MAX + '.');
+    }
+  });
+  ['jumpX', 'jumpY'].forEach(function (id) {
+    document.getElementById(id).addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') document.getElementById('jumpGo').click();
+    });
+  });
+
+  // Random tile
+  document.getElementById('btnRandom').addEventListener('click', function () {
+    gotoTile(MIN + Math.floor(Math.random() * SIZE),
+             MIN + Math.floor(Math.random() * SIZE), 1);
+  });
+
+  // Coordinate labels toggle
+  document.getElementById('chkLabels').addEventListener('change', function () {
+    viewWrap.classList.toggle('showLabels', this.checked);
+  });
+
+  // Keyboard navigation
+  document.addEventListener('keydown', function (e) {
+    var t = e.target;
+    if (t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA')) return;
+    var handled = true;
+    switch (e.key) {
+      case 'ArrowUp':    case 'w': case 'W': move(0, -1, e.shiftKey); break;
+      case 'ArrowDown':  case 's': case 'S': move(0, 1, e.shiftKey); break;
+      case 'ArrowLeft':  case 'a': case 'A': move(-1, 0, e.shiftKey); break;
+      case 'ArrowRight': case 'd': case 'D': move(1, 0, e.shiftKey); break;
+      case '+': case '=': if (state.mode === 'zoom') zoomIn(); break;
+      case '-': case '_': zoomOut(); break;
+      case 'Escape': case 'Home': showOverview(); break;
+      default: handled = false;
+    }
+    if (handled) e.preventDefault();
+  });
+
+  window.addEventListener('hashchange', applyHash);
+
+  // Initial view
+  applyHash();
+})();
+</script>
+</body>
+</html>
