@@ -300,9 +300,26 @@
   var ZOOMS = {
     1: { n: 5, sfx: '.x4.png', name: 'Regional view (5×5 tiles)' },
     2: { n: 3, sfx: '.x3.png', name: 'Local view (3×3 tiles)' },
-    3: { n: 1, sfx: '.x1.png', name: 'Single map (full detail)' }
+    3: { n: 1, sfx: '.x2.png', name: 'Single map (full detail)' }
   };
   var MAXZ = 3;
+
+  // Where the tile images live. '' means alongside this page (e.g. the Atlas
+  // world/ directory). Point it at a remote tile host — such as the
+  // crossfire-atlas-world-tiles repository served through GitHub Pages — to
+  // run this page standalone. Can be overridden per-visit with
+  // ?tiles=<base-url> in the page URL.
+  var TILE_BASE = '';
+  // Per-tile detail pages (world_<x>_<y>.html) exist only on the Atlas site,
+  // so the detail link points there when tiles come from a remote host. Set
+  // to '' to hide the link entirely on remote-tile deployments.
+  var DETAIL_BASE = 'https://www.crossfireatlas.net/world/';
+
+  var qsTiles = new URLSearchParams(location.search).get('tiles');
+  if (qsTiles !== null) TILE_BASE = qsTiles;
+  if (TILE_BASE && !/\/$/.test(TILE_BASE)) TILE_BASE += '/';
+  var detailBase = TILE_BASE ? DETAIL_BASE : '';
+  var hasDetail = !TILE_BASE || !!DETAIL_BASE;
 
   // Landmarks extracted from the region designations in the map source files.
   var LANDMARKS = [
@@ -340,6 +357,7 @@
   var minimapRect = document.getElementById('minimapRect');
 
   function tileName(x, y) { return 'world_' + x + '_' + y; }
+  function tileURL(x, y, sfx) { return TILE_BASE + tileName(x, y) + sfx; }
   function clampW(v, n) { return Math.min(MAX - n + 1, Math.max(MIN, v)); }
   function centerOf(s) {
     var n = ZOOMS[s.z].n, h = Math.floor(n / 2);
@@ -364,7 +382,7 @@
     cell.dataset.x = x;
     cell.dataset.y = y;
     var img = document.createElement('img');
-    img.src = tileName(x, y) + sfx;
+    img.src = tileURL(x, y, sfx);
     img.alt = tileName(x, y);
     img.draggable = false;
     if (lazy) img.loading = 'lazy';
@@ -399,8 +417,8 @@
         }
       }
       crumb.innerHTML = 'Center tile: <b>' + tileName(c.x, c.y) + '</b>';
-      detailLink.href = tileName(c.x, c.y) + '.html';
-      detailLink.style.display = '';
+      detailLink.href = detailBase + tileName(c.x, c.y) + '.html';
+      detailLink.style.display = hasDetail ? '' : 'none';
       hint.textContent = n > 1
         ? 'Click a tile to center and zoom in on it. The dashed square marks the current center.'
         : 'You are viewing a single map at full detail.';
@@ -531,7 +549,7 @@
     for (var y = MIN; y <= MAX; y++) {
       for (var x = MIN; x <= MAX; x++) {
         var img = document.createElement('img');
-        img.src = tileName(x, y) + '.x5.png';
+        img.src = tileURL(x, y, '.x5.png');
         img.alt = '';
         img.loading = 'lazy';
         minimap.appendChild(img);

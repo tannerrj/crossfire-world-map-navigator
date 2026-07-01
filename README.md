@@ -17,7 +17,7 @@ a single map at full detail.
   |---|---|---|---|
   | Regional | 5 × 5 | `.x4.png` | 200 px |
   | Local | 3 × 3 | `.x3.png` | 400 px |
-  | Single map | 1 × 1 | `.x1.png` | 1600 px |
+  | Single map | 1 × 1 | `.x2.png` | 800 px |
 
 - **Compass rose** with all eight direction arrows plus a center zoom-in button. Arrows
   grey out at the map borders; zoom-in greys out at full detail.
@@ -42,7 +42,7 @@ by the Crossfire Atlas rendering pipeline. The page expects, for every tile from
 `world_100_100` to `world_129_129`:
 
 ```
-world_<x>_<y>.x1.png   1600 × 1600  full detail
+world_<x>_<y>.x2.png    800 × 800   full detail
 world_<x>_<y>.x3.png    400 × 400   local view
 world_<x>_<y>.x4.png    200 × 200   regional view
 world_<x>_<y>.x5.png    100 × 100   world view and minimap
@@ -52,6 +52,21 @@ world_<x>_<y>.html                  per-tile detail page (optional; used by the
 
 The page is fully standalone — no external libraries, no build step, and no server-side
 code. Any static web server will do.
+
+### Remote tile hosting
+
+The tiles do not have to sit next to the page. The `TILE_BASE` constant near the top of
+the script sets where tile images are loaded from (`''` means the page's own directory),
+and any visitor can override it with a `?tiles=<base-url>` query parameter, e.g.:
+
+```
+map-navigator.html?tiles=https://example.github.io/crossfire-atlas-world-tiles/
+```
+
+This allows the page to run standalone — for example from GitHub Pages — against a
+companion repository that carries only the tile images. When tiles come from a remote
+host, the "Open tile detail page" link points to the Atlas site (`DETAIL_BASE`) instead
+of a relative URL.
 
 ## Regenerating landmark data
 

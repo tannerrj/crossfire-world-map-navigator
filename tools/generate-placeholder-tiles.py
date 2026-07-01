@@ -5,7 +5,7 @@ Creates dummy images for every bigworld tile (world_100_100 .. world_129_129)
 at the sizes the navigator uses, so the page can be developed and tested
 without the real Crossfire Atlas renders:
 
-    world_<x>_<y>.x1.png   1600 x 1600
+    world_<x>_<y>.x2.png    800 x 800
     world_<x>_<y>.x3.png    400 x 400
     world_<x>_<y>.x4.png    200 x 200
     world_<x>_<y>.x5.png    100 x 100
@@ -29,7 +29,7 @@ from pathlib import Path
 
 MIN, MAX = 100, 129
 BASE = 100                      # tiles are drawn on a 100x100 logical canvas
-SIZES = {"x1": 1600, "x3": 400, "x4": 200, "x5": 100}
+SIZES = {"x2": 800, "x3": 400, "x4": 200, "x5": 100}
 
 # 5x7 bitmap glyphs for the coordinate labels.
 FONT = {
@@ -126,7 +126,7 @@ DETAIL_STUB = """<!DOCTYPE html>
 <body style="background:#1a1611;color:#e8dcc4;font-family:Georgia,serif;text-align:center">
 <h1>%(name)s</h1>
 <p>Placeholder detail page for development.</p>
-<p><img src="%(name)s.x1.png" alt="%(name)s" style="max-width:90vmin"></p>
+<p><img src="%(name)s.x2.png" alt="%(name)s" style="max-width:90vmin"></p>
 <p><a href="map-navigator.html#%(x)d,%(y)d,3" style="color:#d4a843">Back to the navigator</a></p>
 </body></html>
 """
