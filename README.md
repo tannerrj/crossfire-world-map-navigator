@@ -8,6 +8,11 @@ The default view assembles all 900 tile thumbnails into the full world map. Visi
 click any tile to zoom in, then step across the world with a compass rose or drill down to
 a single map at full detail.
 
+**[Live demo](https://tannerrj.github.io/crossfire-world-map-navigator/map-navigator.html)** —
+served from this repository via GitHub Pages, with tiles from the companion
+[crossfire-atlas-world-tiles](https://github.com/tannerrj/crossfire-atlas-world-tiles)
+repository.
+
 ## Features
 
 - **World view** — the complete 30×30 world assembled from the `.x5.png` thumbnails.
