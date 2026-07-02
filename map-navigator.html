@@ -321,6 +321,14 @@
   // overridden per-visit with ?layout=bysize (or flat).
   var TILE_LAYOUT = 'flat';
 
+  // When served from GitHub Pages there are no tile images alongside the
+  // page, so default to the companion tile repository's Pages site. Query
+  // parameters below still override this.
+  if (/\.github\.io$/.test(location.hostname)) {
+    TILE_BASE = 'https://tannerrj.github.io/crossfire-atlas-world-tiles/';
+    TILE_LAYOUT = 'bysize';
+  }
+
   var qs = new URLSearchParams(location.search);
   if (qs.get('tiles') !== null) TILE_BASE = qs.get('tiles');
   if (qs.get('layout') !== null) TILE_LAYOUT = qs.get('layout');

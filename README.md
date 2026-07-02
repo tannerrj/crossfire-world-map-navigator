@@ -69,7 +69,9 @@ map-navigator.html?tiles=https://tannerrj.github.io/crossfire-atlas-world-tiles/
 ```
 
 This allows the page to run standalone — for example from GitHub Pages — against a
-companion repository that carries only the tile images. When tiles come from a remote
+companion repository that carries only the tile images. When the page itself is served
+from a `*.github.io` host, it automatically defaults to the companion tile repository's
+Pages site, so the demo works with no query parameters. When tiles come from a remote
 host, the "Open tile detail page" link points to the Atlas site (`DETAIL_BASE`) instead
 of a relative URL.
 

@@ -53,7 +53,10 @@ All state and rendering logic is in the inline `<script>` (an IIFE) at the botto
   listings at 1,000 entries; the repo lives at
   https://github.com/tannerrj/crossfire-atlas-world-tiles with a local checkout at
   /Users/leaf/website/crossfire-atlas-world-tiles). `?tiles=<base-url>` and
-  `?layout=<flat|bysize>` query parameters override both at runtime. When `TILE_BASE` is remote, the detail link uses
+  `?layout=<flat|bysize>` query parameters override both at runtime, and when
+  `location.hostname` ends in `.github.io` the page auto-defaults to the tile repo's
+  Pages site (bysize) so the GitHub Pages demo needs no query parameters — query params
+  still win. When `TILE_BASE` is remote, the detail link uses
   the absolute `DETAIL_BASE` URL, or hides if `DETAIL_BASE` is ''.
 - **Border behavior**: the window is clamped to the map (`clampW`), never showing void
   beyond the edge. Compass arrows disable via `canMove`; a diagonal is enabled only when
