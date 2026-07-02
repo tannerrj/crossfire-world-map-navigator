@@ -50,8 +50,10 @@ All state and rendering logic is in the inline `<script>` (an IIFE) at the botto
   world/ deployment). `TILE_LAYOUT` is `'flat'` (all files in one directory, Atlas
   layout) or `'bysize'` (per-size subdirectories like `x2/world_105_115.x2.png`, the
   crossfire-atlas-world-tiles repo layout — sharded because GitHub truncates directory
-  listings at 1,000 entries). `?tiles=<base-url>` and `?layout=<flat|bysize>` query
-  parameters override both at runtime. When `TILE_BASE` is remote, the detail link uses
+  listings at 1,000 entries; the repo lives at
+  https://github.com/tannerrj/crossfire-atlas-world-tiles with a local checkout at
+  /Users/leaf/website/crossfire-atlas-world-tiles). `?tiles=<base-url>` and
+  `?layout=<flat|bysize>` query parameters override both at runtime. When `TILE_BASE` is remote, the detail link uses
   the absolute `DETAIL_BASE` URL, or hides if `DETAIL_BASE` is ''.
 - **Border behavior**: the window is clamped to the map (`clampW`), never showing void
   beyond the edge. Compass arrows disable via `canMove`; a diagonal is enabled only when

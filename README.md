@@ -59,12 +59,13 @@ The tiles do not have to sit next to the page. The `TILE_BASE` constant near the
 the script sets where tile images are loaded from (`''` means the page's own directory),
 and `TILE_LAYOUT` describes how the files are arranged there: `flat` (everything in one
 directory, the Atlas world/ layout) or `bysize` (one subdirectory per image size —
-`x2/world_105_115.x2.png` — the layout of the companion crossfire-atlas-world-tiles
+`x2/world_105_115.x2.png` — the layout of the companion
+[crossfire-atlas-world-tiles](https://github.com/tannerrj/crossfire-atlas-world-tiles)
 repository, which shards the tiles to stay within GitHub's 1,000-entry directory
 listing limit). Visitors can override both with query parameters, e.g.:
 
 ```
-map-navigator.html?tiles=https://example.github.io/crossfire-atlas-world-tiles/&layout=bysize
+map-navigator.html?tiles=https://cdn.jsdelivr.net/gh/tannerrj/crossfire-atlas-world-tiles@main/&layout=bysize
 ```
 
 This allows the page to run standalone — for example from GitHub Pages — against a
