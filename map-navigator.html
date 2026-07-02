@@ -314,9 +314,16 @@
   // so the detail link points there when tiles come from a remote host. Set
   // to '' to hide the link entirely on remote-tile deployments.
   var DETAIL_BASE = 'https://www.crossfireatlas.net/world/';
+  // How tile files are arranged under TILE_BASE. 'flat' is the Atlas world/
+  // layout (world_105_115.x2.png). 'bysize' is the crossfire-atlas-world-tiles
+  // repository layout, one subdirectory per image size (x2/world_105_115.x2.png)
+  // to stay within GitHub's 1,000-entry directory listing limit. Can be
+  // overridden per-visit with ?layout=bysize (or flat).
+  var TILE_LAYOUT = 'flat';
 
-  var qsTiles = new URLSearchParams(location.search).get('tiles');
-  if (qsTiles !== null) TILE_BASE = qsTiles;
+  var qs = new URLSearchParams(location.search);
+  if (qs.get('tiles') !== null) TILE_BASE = qs.get('tiles');
+  if (qs.get('layout') !== null) TILE_LAYOUT = qs.get('layout');
   if (TILE_BASE && !/\/$/.test(TILE_BASE)) TILE_BASE += '/';
   var detailBase = TILE_BASE ? DETAIL_BASE : '';
   var hasDetail = !TILE_BASE || !!DETAIL_BASE;
@@ -357,7 +364,10 @@
   var minimapRect = document.getElementById('minimapRect');
 
   function tileName(x, y) { return 'world_' + x + '_' + y; }
-  function tileURL(x, y, sfx) { return TILE_BASE + tileName(x, y) + sfx; }
+  function tileURL(x, y, sfx) {
+    var dir = TILE_LAYOUT === 'bysize' ? sfx.split('.')[1] + '/' : '';
+    return TILE_BASE + dir + tileName(x, y) + sfx;
+  }
   function clampW(v, n) { return Math.min(MAX - n + 1, Math.max(MIN, v)); }
   function centerOf(s) {
     var n = ZOOMS[s.z].n, h = Math.floor(n / 2);

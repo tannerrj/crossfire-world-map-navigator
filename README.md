@@ -57,10 +57,14 @@ code. Any static web server will do.
 
 The tiles do not have to sit next to the page. The `TILE_BASE` constant near the top of
 the script sets where tile images are loaded from (`''` means the page's own directory),
-and any visitor can override it with a `?tiles=<base-url>` query parameter, e.g.:
+and `TILE_LAYOUT` describes how the files are arranged there: `flat` (everything in one
+directory, the Atlas world/ layout) or `bysize` (one subdirectory per image size —
+`x2/world_105_115.x2.png` — the layout of the companion crossfire-atlas-world-tiles
+repository, which shards the tiles to stay within GitHub's 1,000-entry directory
+listing limit). Visitors can override both with query parameters, e.g.:
 
 ```
-map-navigator.html?tiles=https://example.github.io/crossfire-atlas-world-tiles/
+map-navigator.html?tiles=https://example.github.io/crossfire-atlas-world-tiles/&layout=bysize
 ```
 
 This allows the page to run standalone — for example from GitHub Pages — against a

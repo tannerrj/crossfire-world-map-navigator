@@ -45,12 +45,14 @@ All state and rendering logic is in the inline `<script>` (an IIFE) at the botto
   the page does not use — z3 deliberately uses `.x2` so the companion tiles repository
   stays ~250MB instead of ~600MB. Adding/changing a zoom level means editing this table
   plus `MAXZ`.
-- **`TILE_BASE` / `DETAIL_BASE`** control where tile images and per-tile detail pages are
-  loaded from. `TILE_BASE = ''` means same directory (the Atlas world/ deployment);
-  a `?tiles=<base-url>` query parameter overrides it at runtime (used for testing and for
-  running the page standalone against a remote tile host such as the
-  crossfire-atlas-world-tiles repo). When `TILE_BASE` is remote, the detail link uses the
-  absolute `DETAIL_BASE` URL, or hides if `DETAIL_BASE` is ''.
+- **`TILE_BASE` / `TILE_LAYOUT` / `DETAIL_BASE`** control where and how tile images and
+  per-tile detail pages are loaded. `TILE_BASE = ''` means same directory (the Atlas
+  world/ deployment). `TILE_LAYOUT` is `'flat'` (all files in one directory, Atlas
+  layout) or `'bysize'` (per-size subdirectories like `x2/world_105_115.x2.png`, the
+  crossfire-atlas-world-tiles repo layout — sharded because GitHub truncates directory
+  listings at 1,000 entries). `?tiles=<base-url>` and `?layout=<flat|bysize>` query
+  parameters override both at runtime. When `TILE_BASE` is remote, the detail link uses
+  the absolute `DETAIL_BASE` URL, or hides if `DETAIL_BASE` is ''.
 - **Border behavior**: the window is clamped to the map (`clampW`), never showing void
   beyond the edge. Compass arrows disable via `canMove`; a diagonal is enabled only when
   both of its components can move.
