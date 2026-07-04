@@ -13,6 +13,9 @@ served from this repository via GitHub Pages, with tiles from the companion
 [crossfire-atlas-world-tiles](https://github.com/tannerrj/crossfire-atlas-world-tiles)
 repository.
 
+![The navigator's regional view centered on the Kingdom of Navar, with the
+compass rose, minimap, and landmark finder in the sidebar](docs/world-view.png)
+
 ## Features
 
 - **World view** — the complete 30×30 world assembled from the `.x5.png` thumbnails.
