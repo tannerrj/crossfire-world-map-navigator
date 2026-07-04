@@ -2,5 +2,8 @@
 # part of this repository.
 *.png
 
+# ... except documentation images such as README screenshots.
+!docs/*.png
+
 # macOS
 .DS_Store
