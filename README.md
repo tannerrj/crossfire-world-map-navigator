@@ -16,6 +16,12 @@ repository.
 ![The navigator's regional view centered on the Kingdom of Navar, with the
 compass rose, minimap, and landmark finder in the sidebar](docs/world-view.png)
 
+See also **[crossfire-travel-map](https://github.com/tannerrj/crossfire-travel-map)**
+([live](https://tannerrj.github.io/crossfire-travel-map/)) — a schematic parchment
+atlas of the same world showing cities, the coastline, and the routes between
+destinations, generated from the map sources; its cities deep-link into this
+navigator.
+
 ## Features
 
 - **World view** — the complete 30×30 world assembled from the `.x5.png` thumbnails.
